@@ -1,0 +1,17 @@
+{
+    "name": "release-burndown-app",
+    "className": "releaseBurndownApp",
+    "server": "https://rally1.rallydev.com",
+    "sdk": "2.1",
+    "javascript": [
+        "../common/src/javascript/_toolbox.js",
+        "../common/src/javascript/overrides.js",
+        "../common/src/javascript/portfolioSelectorComponent.js",
+        "../common/src/javascript/selectorAppBase.js",
+        "BurndownCalculator.js",
+        "App.js"
+    ],
+    "css": [
+        "app.css"
+    ]
+}

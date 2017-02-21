@@ -1,0 +1,23 @@
+.app {
+     /* Add app styles here */
+}
+
+.highcharts-tooltip {
+    font-family:NotoSansBold;
+    color:white;
+}
+.tooltip-point {
+    text-align: right;
+    color: white;
+}
+.tooltip-label {
+    font-family:NotoSans;
+    white-space:nowrap;
+    font-size:13px;
+    color:white;
+}
+.etlDate {
+    color: grey;
+    font-family: NotoSans;
+    font-style: italic;
+}

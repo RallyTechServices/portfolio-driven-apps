@@ -1,0 +1,15 @@
+{
+    "name": "portfolio-selector",
+    "className": "portfolioSelectorApp",
+    "server": "https://rally1.rallydev.com",
+    "sdk": "2.1",
+    "javascript": [
+        "../common/src/javascript/overrides.js",
+        "./../common/src/javascript/portfolioSelectorComponent.js",
+        "./../common/src/javascript/toolbox.js",
+        "App.js"
+    ],
+    "css": [
+        "app.css"
+    ]
+}

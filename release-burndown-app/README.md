@@ -4,7 +4,7 @@ release-burndown-app
 ## Overview
 Release burndown that is filtered by Release (on a Release scoped dashboard) and the selected portfolio item. 
 
-!ScreenShot[(images/release-burndown-app.png)]
+![ScreenShot](images/release-burndown-app.png)
 
  The column represents the sum of story points associated with "features" (or lowest level Portfolio item type) associated explicitly with the selected release.  
  Note that if a story is associated with the release explicitly, but the feature that it belongs to is not, the story will not be included in this chart.  

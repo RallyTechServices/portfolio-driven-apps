@@ -3,5 +3,7 @@
 
 ##Release Burndown
 Release burndown that is filtered by Release (on a Release scoped dashboard) and the selected portfolio item. 
+
 [(see README here)](/release-burndown-app/README.md) 
+
 ![ScreenShot](images/release-burndown-app.png)  

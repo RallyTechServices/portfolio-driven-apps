@@ -15,3 +15,14 @@
     margin-right: 5px;
     cursor: pointer;
 }
+
+.row-cell-summary {
+    color:#222222;
+    font-family:ProximaNovaSemiBold, Helvetica, Arial;
+    border-radius:2px;
+    font-size:11px;
+    background-color:#e6e6e6;
+    padding:3px;
+    margin:2px;
+    text-align:center;
+}

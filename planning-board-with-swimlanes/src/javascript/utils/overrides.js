@@ -106,7 +106,7 @@ Ext.override(Rally.ui.cardboard.row.Header, {
             if (idx === 0){
                 tpl += '<td class="row-header-cell"><div class="row-header-title">{title}</div></td>';
             } else {
-                tpl += '<td class="row-header-cell"><div class="cell-' + idx + ' row-cell-summary"></div></td>';
+                tpl += '<td class="row-header-cell"><div class="cell-' + idx + ' row-cell-summary"> -- headcount (-- Epics)</div></td>';
             }
         }, this);
         return tpl;
@@ -114,21 +114,24 @@ Ext.override(Rally.ui.cardboard.row.Header, {
 
     _getCellText: function(col, idx){
 
+        if (col.store.isLoading()){
+            col.store.on('load', this.onColumnsUpdated, this);
+            return;
+        }
+
         if (idx === 0){
             return this._getTitle();
         }
         var thisRef = this.getValue() && this.getValue()._ref;
 
         var est = 0,
-            storyCount = 0,
-            epicCount = 0,
-            estimateTotal = this.getValue() && this.getValue().LeafStoryPlanEstimateTotal || 0;
+            epicCount = 0;
 
         col.store.each(function(r){
             var parentRef = r.get('Parent') && r.get('Parent')._ref;
+
             if (parentRef === thisRef){
                 est += r.get('PreliminaryEstimate') && r.get('PreliminaryEstimate').Value || 0;
-               // storyCount += r.get('LeafStoryCount') || 0;
                 epicCount++;
             }
         }, this);

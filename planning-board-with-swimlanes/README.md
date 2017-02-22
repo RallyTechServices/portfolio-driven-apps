@@ -5,7 +5,7 @@ This is essentially the Release Planning board with the following updates:
 *  addition of Parent swimlanes, including the summed velocity for each Parent/Release combination
 *  Velocity at the top of each column is divided by 100 (to represent desired units) 
 
-![screenshot](./images/planning-with-swimlanes.png)
+![screenshot](/images/planning-with-swimlanes.png)
 
 
 ## Development Notes

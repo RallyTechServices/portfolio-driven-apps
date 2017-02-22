@@ -8,7 +8,6 @@ This is essentially the Release Planning board with the following updates:
 ![screenshot](./images/planning-with-swimlanes.png)
 
 
-
 ## Development Notes
 
 

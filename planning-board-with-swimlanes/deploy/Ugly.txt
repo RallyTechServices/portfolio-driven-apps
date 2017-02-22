@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Planning Board with Swimlanes</title>
+    <!--  (c) 2017 CA Technologies.  All Rights Reserved. -->
+    <!--  Build Date: Tue Feb 21 2017 21:27:34 GMT-0700 (MST) -->
+    
+    <script type="text/javascript">
+        var APP_BUILD_DATE = "Tue Feb 21 2017 21:27:34 GMT-0700 (MST)";
+        var STORY    = "US4629";
+        var BUILDER  = "kcorkan";
+        var CHECKSUM = 3951950223;
+    </script>
+    
+    <script type="text/javascript" src="/apps/2.1/sdk.js"></script>
+    <!-- our highcharts (needed so that we can add patterns) 
+    <script type="text/javascript" src="/apps/2.1/lib/analytics/analytics-all.js"></script>
+    -->
+    
+    
+    <script type="text/javascript">
+        Rally.onReady(function() {
+            Ext.define("Rally.technicalservices.InfoLink",{extend:"Rally.ui.dialog.Dialog",alias:"widget.tsinfolink",informationHtml:null,title:"Build Information",defaults:{padding:5,margin:5},closable:!0,draggable:!0,autoShow:!0,width:350,informationalConfig:null,items:[{xtype:"container",itemId:"information"}],initComponent:function(){Ext.id(this);this.title="<span class='icon-help'> </span>"+this.title,this.callParent(arguments)},_generateChecksum:function(a){var b,c=305419896;for(a=a.replace(/var CHECKSUM = .*;/,""),a=a.replace(/var BUILDER  = .*;/,""),a=a.replace(/\s/g,""),b=0;b<a.length;b++)c+=a.charCodeAt(b)*b;return c},_checkChecksum:function(a){var b=Ext.create("Deft.Deferred"),c=this;return Ext.Ajax.request({url:document.URL,params:{id:1},success:function(a){if(text=a.responseText,CHECKSUM){var d=c._generateChecksum(text);if(CHECKSUM!==d)return void b.resolve(!1)}b.resolve(!0)}}),b.promise},_addToContainer:function(a){var b=Ext.apply({xtype:"container",height:200,overflowY:!0},this.informationalConfig);a.add(b)},afterRender:function(){var a=Rally.getApp();if(!Ext.isEmpty(this.informationalConfig)){var b=this.down("#information");this._addToContainer(b)}a.isExternal()?this.addDocked({xtype:"container",cls:"build-info",padding:2,dock:"bottom",html:"... Running externally"}):this._checkChecksum(a).then({scope:this,success:function(a){a||this.addDocked({xtype:"container",cls:"build-info",dock:"bottom",padding:2,html:'<span class="icon-warning"> </span>Checksums do not match'})},failure:function(a){console.log("oops:",a)}}),this.callParent(arguments)},beforeRender:function(){if(this.callParent(arguments),this.informationHtml&&this.addDocked({xtype:"component",componentCls:"intro-panel",padding:2,html:this.informationHtml,doc:"top"}),this.addDocked({xtype:"container",cls:"build-info",padding:2,dock:"bottom",html:"This app was created by the CA AC Technical Services Team."}),APP_BUILD_DATE){var a=Ext.String.format("Built on: {0} <br/>Built by: {1}",APP_BUILD_DATE,BUILDER);STORY&&(a=a+"<br/>Source story: "+STORY),this.addDocked({xtype:"container",cls:"build-info",padding:2,dock:"bottom",html:a})}}}),Ext.define("Rally.technicalservices.Logger",{constructor:function(a){Ext.apply(this,a)},log:function(a){var b="[ "+Ext.util.Format.date(new Date,"Y-m-d H:i:s.u")+" ]",c=[];c=Ext.Array.push(c,[b]),c=Ext.Array.push(c,Ext.Array.slice(arguments,0)),window.console&&console.log.apply(console,c)}}),Ext.override(Rally.ui.gridboard.planning.TimeboxColumnProgressBar,{_getTotalPointCount:function(){var a=this.store.getSums(),b=a[this.pointField];return b>0&&(b=(b/100).toFixed(1)),b||0}}),Ext.override(Rally.ui.cardboard.row.Header,{renderTpl:null,data:{},initComponent:function(){this.renderTpl=Ext.create("Ext.XTemplate",this._buildRenderTpl()),this.renderData={title:this._getTitle()},this.callParent(arguments),this.on("afterrender",this.onColumnsUpdated,this)},_buildRenderTpl:function(){var a="";return Ext.Array.each(this.columns,function(b,c){a+=0===c?'<td class="row-header-cell"><div class="row-header-title">{title}</div></td>':'<td class="row-header-cell"><div class="cell-'+c+' row-cell-summary"></div></td>'},this),a},_buildRenderData:function(){var a={};return Ext.Array.each(this.columns,function(b,c){var d="cell"+String.fromCharCode(97+c);0===c&&(d="title"),a[d]=this._getCell(b,c)},this),a},_getCell:function(a,b){if(0===b)return this._getTitle();var c=this.getValue()&&this.getValue()._ref,d=0,e=0,f=0,g=this.getValue()&&this.getValue().LeafStoryPlanEstimateTotal||0;a.store.each(function(a){var b=a.get("Parent")&&a.get("Parent")._ref;b===c&&(d+=a.get("LeafStoryPlanEstimateTotal")||0,e+=a.get("LeafStoryCount")||0,f++)},this);var h=Ext.String.format("{0} of {1} Total Estimate ({2} Epics)",d,g,f);return h},onColumnsUpdated:function(){Ext.Array.each(this.columns,function(a,b){var c=this._getCell(a,b),d=this.getEl().down(".cell-"+b);d&&d.update(c)},this)}}),Ext.define("planning-board-with-swimlanes",{extend:"Rally.app.App",launch:function(){Rally.data.util.PortfolioItemHelper.loadTypeOrDefault({defaultToLowest:!0,requester:this,success:function(a){this.piTypePath=a.get("TypePath"),this._buildGridBoard()},scope:this})},_buildGridBoard:function(){var a=this.getContext();this.gridboard=this.add({xtype:"rallytimeboxgridboard",cardBoardConfig:{columnConfig:{columnStatusConfig:{pointField:"PreliminaryEstimateValue"},fields:this._getDefaultFields()},listeners:{filter:this._onBoardFilter,filtercomplete:this._onBoardFilterComplete,scope:this},rowConfig:{field:"Parent",enableCrossRowDragging:!1}},context:a,endDateField:"ReleaseDate",listeners:{load:this._onLoad,toggle:this._publishContentUpdated,recordupdate:this._publishContentUpdatedNoDashboardLayout,recordcreate:this._publishContentUpdatedNoDashboardLayout,preferencesaved:this._publishPreferenceSaved,viewchange:this._viewChange,scope:this},modelNames:this._getModelNames(),plugins:this._getPlugins(),startDateField:"ReleaseStartDate",timeboxType:"Release"})},_getPlugins:function(){var a=this.getContext(),b=["AcceptedLeafStoryCount","AcceptedLeafStoryPlanEstimateTotal","DirectChildrenCount","LeafStoryCount","LeafStoryPlanEstimateTotal","LastUpdateDate","State","UnEstimatedLeafStoryCount"];return[{ptype:"rallygridboardaddnew",rankScope:"BACKLOG",addNewControlConfig:{stateful:!0,stateId:a.getScopedStateId("release-planning-add-new")}},this._getCustomFilterControlPluginConfig(),{ptype:"rallygridboardfieldpicker",boardFieldBlackList:b,headerPosition:"left"},this._getSharedViewPluginConfig()]},_getCustomFilterControlPluginConfig:function(){var a=this.getContext(),b=["PortfolioItemType","Release","ModelType"],c=["Milestones","Tags"];return{ptype:"rallygridboardinlinefiltercontrol",inlineFilterButtonConfig:{stateful:!0,stateId:a.getScopedStateId("release-planning-inline-filter"),legacyStateIds:[a.getScopedStateId("release-planning-owner-filter"),a.getScopedStateId("release-planning-custom-filter-button")],filterChildren:!1,modelNames:this._getModelNames(),inlineFilterPanelConfig:{quickFilterPanelConfig:{defaultFields:["ArtifactSearch","Owner","Parent"],addQuickFilterConfig:{blackListFields:b,whiteListFields:c}},advancedFilterPanelConfig:{advancedFilterRowsConfig:{propertyFieldConfig:{blackListFields:b,whiteListFields:c}}}}}}},_getSharedViewPluginConfig:function(){var a=this.getContext();return{ptype:"rallygridboardsharedviewcontrol",sharedViewConfig:{stateful:!0,stateId:a.getScopedStateId("release-planning-shared-view"),defaultViews:_.map(this._getDefaultViews(),function(a){return Ext.apply(a,{Value:Ext.JSON.encode(a.Value,!0)}),a},this),enableUrlSharing:this.isFullPageApp!==!1}}},_getDefaultViews:function(){return[{Name:"Default View",identifier:1,Value:{toggleState:"board",fields:this._getDefaultFields()}}]},_onLoad:function(){this._publishContentUpdated(),this.recordComponentReady(),Rally.BrowserTest&&Rally.BrowserTest.publishComponentReady(this)},_onBoardFilter:function(){this.setLoading(!0)},_onBoardFilterComplete:function(){this.setLoading(!1)},_publishContentUpdated:function(){this.fireEvent("contentupdated")},_publishContentUpdatedNoDashboardLayout:function(){this.fireEvent("contentupdated",{dashboardLayout:!1})},_publishPreferenceSaved:function(a){this.fireEvent("preferencesaved",a)},_getDefaultFields:function(){return["Discussion","PreliminaryEstimate","UserStories","Milestones"]},_getModelNames:function(){return[this.piTypePath]},_viewChange:function(){this.gridboard&&this.gridboard.destroy(),this._buildGridBoard()},getOptions:function(){return[{text:"About...",handler:this._launchInfo,scope:this}]},_launchInfo:function(){this.about_dialog&&this.about_dialog.destroy(),this.about_dialog=Ext.create("Rally.technicalservices.InfoLink",{})},isExternal:function(){return"undefined"==typeof this.getAppId()}});
+            
+               Rally.launchApp('planning-board-with-swimlanes', {
+                   name: 'Planning Board with Swimlanes'
+               });
+        });
+    </script>
+    
+    <style type="text/css">
+
+.app {
+}
+.tsinfolink {
+    position:absolute;
+    right:0px;
+    width: 14px;
+    height: 14px;
+    border-radius: 7px;
+    text-align: center;
+    color: white;
+    background: #C0C0C0;
+    border-style: solid;
+    border-width: 1px;
+    margin-top: 25px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.row-cell-summary {
+    color:#222222;
+    font-family:ProximaNovaSemiBold, Helvetica, Arial;
+    border-radius:2px;
+    font-size:11px;
+    background-color:#e6e6e6;
+    padding:3px;
+    margin:2px;
+    text-align:center;
+}
+    </style>
+
+</head>
+<body></body>
+</html>

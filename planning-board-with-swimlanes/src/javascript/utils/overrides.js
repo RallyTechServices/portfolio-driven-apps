@@ -127,13 +127,12 @@ Ext.override(Rally.ui.cardboard.row.Header, {
         col.store.each(function(r){
             var parentRef = r.get('Parent') && r.get('Parent')._ref;
             if (parentRef === thisRef){
-                est += r.get('LeafStoryPlanEstimateTotal') || 0;
-                storyCount += r.get('LeafStoryCount') || 0;
+                est += r.get('PreliminaryEstimate') && r.get('PreliminaryEstimate').Value || 0;
+               // storyCount += r.get('LeafStoryCount') || 0;
                 epicCount++;
             }
         }, this);
-
-        return Ext.String.format("{0} of {1} Total Estimate ({2} Epics)",est, estimateTotal, epicCount);
+        return Ext.String.format("{0} headcount ({1} Epics)",est/100, epicCount);
     },
     onColumnsUpdated: function() {
 

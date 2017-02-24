@@ -494,43 +494,6 @@ Ext.define('Rally.technicalservices.PortfolioParentComboBox',{
         }
         return null;
     },
-    applyState: function(state) {
-//        if (!Ext.isEmpty(state) && !Ext.Object.isEmpty(state)){
-//            var ref = Ext.create('Rally.util.Ref',state.portfolioItemRef),
-//                type = ref.getType();
-//
-//            //don't apply the state if the type doesn't match.
-//            if (this.type && this.type.toLowerCase() !== type.toLowerCase()){
-//                this._updatePortfolioItem(null);
-//                return;
-//            }
-//
-//            Rally.data.ModelFactory.getModel({
-//                type: type,
-//                scope: this,
-//                success: function(model) {
-//                    model.load(ref.getOid(),{
-//                        scope: this,
-//                        callback: function(result, operation){
-//                            if (result && operation.wasSuccessful()){
-//                                this._updatePortfolioItem(result);
-//                            } else {
-//                                this._updatePortfolioItem(null);
-//                                Rally.ui.notify.Notifier.showError({message: 'Could not load state for item [' + state + ']: ' + operation.error && operation.error.errors.join(',')});
-//                            }
-//
-//                        }
-//                    });
-//                },
-//                failure: function(){
-//                    this._updatePortfolioItem(null);
-//                    Rally.ui.notify.Notifier.showError({message: 'Could not load state for item [' + state + ']'});
-//                }
-//            });
-//        } else {
-//            this._updatePortfolioItem(null);
-//        }
-    },
     _updatePortfolioItem: function(){
         this.buttonPushed = true;
         var cb = this.down('#cb-portfolioitem');
@@ -831,7 +794,69 @@ Ext.define('Rally.technicalservices.PortfolioParentComboBox',{
                 "display": "column"
             }
         ];
+    },
+    getSummaryMetricsConfig: function(){
+        var me = this;
+        return [{
+            "as": "Remaining_intercept",
+            "f": function(seriesData){
+                var mb = me.calculateSlopeAndIntercept(seriesData, "Remaining");
+                return mb.intercept;
+            }
+        },{
+            "as": "Remaining_slope",
+            "f": function(seriesData){
+                var mb = me.calculateSlopeAndIntercept(seriesData, "Remaining");
+                return mb.slope;
+            }
+        }];
+
+    },
+    getDerivedFieldsAfterSummary: function(){
+        return [{
+                  "as": "Trend",
+                  "f": function(snapshot, index, metrics) {
+                      if (!isNaN(metrics.Remaining_intercept) && !isNaN(metrics.Remaining_slope)){
+                          return metrics.Remaining_intercept + metrics.Remaining_slope * index;
+                          //return Ext.Number.toFixed(trendPoint, 2);
+                      }
+                      return null;
+
+                  },
+                  "display": "line"
+              }];
+    },
+    calculateSlopeAndIntercept: function(seriesData, attribute){
+        /**
+         * Regression Equation(y) = a + bx
+         * Slope(b) = (NΣXY - (ΣX)(ΣY)) / (NΣX2 - (ΣX)2)
+         * Intercept(a) = (ΣY - b(ΣX)) / N
+         */
+
+        var sum_xy = 0;
+        var sum_x = 0;
+        var sum_y = 0;
+        var sum_x_squared = 0;
+        var n = 0;
+        for (var i=0; i<seriesData.length; i++){
+            if (seriesData[i][attribute]){
+                sum_xy += seriesData[i][attribute] * i;
+                sum_x += i;
+                sum_y += seriesData[i][attribute];
+                sum_x_squared += i * i;
+                n++;
+            }
+        }
+
+        var slope = (n*sum_xy - sum_x * sum_y)/(n*sum_x_squared - sum_x * sum_x),
+            intercept = (sum_y - slope * sum_x)/n;
+
+        return {
+            slope: slope,
+            intercept: intercept
+        };
     }
+
 });
                 Ext.define('releaseBurndownApp', {
     extend: 'portfolioDrivenApps.common.appBase',
@@ -909,7 +934,7 @@ Ext.define('Rally.technicalservices.PortfolioParentComboBox',{
             }
             parentArray.push('Parent');
         });
-      
+
         if (parentArray.length > 0){
             filter = filter.and({
                 property: parentArray.join('.'),
@@ -1062,7 +1087,7 @@ Ext.define('Rally.technicalservices.PortfolioParentComboBox',{
                     stacking: 'normal'
                 }
             }
-        }
+        };
     }
 });
 
